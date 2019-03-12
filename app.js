@@ -1,9 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const mongoose = require("mongoose");
 const feedRoutes = require("./routes/feed");
+const keys = require("./keys/keys");
 
 const app = express();
+
+const PORT = process.env.PORT || 8080;
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
@@ -19,7 +22,11 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoutes);
-
-app.listen(8080, () => {
-  console.log("Server has started");
-});
+mongoose
+  .connect(keys.MONGO_URI)
+  .then(result => {
+    app.listen(PORT, () => {
+      console.log("Server has started");
+    });
+  })
+  .catch(console.log);
