@@ -1,7 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 const feedRoutes = require("./routes/feed");
+
 const keys = require("./keys/keys");
 
 const app = express();
@@ -21,7 +23,17 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/images", express.static(path.join(__dirname, "images")));
+
 app.use("/feed", feedRoutes);
+
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  res.status(status).json({ message });
+});
+
 mongoose
   .connect(keys.MONGO_URI)
   .then(result => {
