@@ -71,7 +71,7 @@ exports.login = (req, res, next) => {
         "kajsdhgbnsnjkldiufyhbsnjklkoasiudhk",
         { expiresIn: "1h" }
       );
-
+ 
       res.status(200).json({
         token,
         userId: loadedUser._id.toString()
