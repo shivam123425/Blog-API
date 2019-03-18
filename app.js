@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const multer = require("multer");
 const feedRoutes = require("./routes/feed");
+const authRoutes = require("./routes/auth");
 
 const keys = require("./keys/keys");
 
@@ -46,16 +47,18 @@ const PORT = process.env.PORT || 8080;
 app.use(bodyParser.json()); // application/json
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 
-
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message });
+  const data = error.data;
+
+  res.status(status).json({ message, data });
 });
 
 mongoose
