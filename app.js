@@ -64,8 +64,12 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(keys.MONGO_URI)
   .then(result => {
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log("Server has started");
+    });
+    const io = require("./socket").init(server);
+    io.on("connection", socket => {
+      console.log("Client connected");
     });
   })
   .catch(console.log);
