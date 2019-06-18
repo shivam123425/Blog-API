@@ -3,8 +3,9 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const multer = require("multer");
-const feedRoutes = require("./routes/feed");
-const authRoutes = require("./routes/auth");
+const graphqlHttp = require("express-graphql");
+const graphqlSchema = require("./graphql/schema");
+const graphqlResolver = require("./graphql/resolvers");
 
 const keys = require("./keys/keys");
 
@@ -49,8 +50,13 @@ app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-app.use("/feed", feedRoutes);
-app.use("/auth", authRoutes);
+app.use(
+  "/graphql",
+  graphqlHttp({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver
+  })
+);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -61,15 +67,12 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message, data });
 });
 
+mongoose.set("useNewUrlParser", true);
 mongoose
   .connect(keys.MONGO_URI)
   .then(result => {
-    const server = app.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log("Server has started");
-    });
-    const io = require("./socket").init(server);
-    io.on("connection", socket => {
-      console.log("Client connected");
     });
   })
   .catch(console.log);
